@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { MENU } from '../data/content'
+import { Rich, useLang } from '../i18n'
 import Icon from './Icon'
 import { EASE, SectionHead } from './Reveal'
 
@@ -18,22 +19,18 @@ function ParallaxPhoto({ src, label, className, speed }) {
 }
 
 export default function Bar() {
+  const { t, tr, money } = useLang()
   return (
     <section className="section" id="bar">
       <div className="container bar-grid">
         <div>
           <SectionHead
-            eyebrow="// Топливо для побед"
+            eyebrow={t('bar.eyebrow')}
             eyebrowClass="magenta"
-            title={
-              <>
-                Кибер-бар & <span className="text-magenta">крафтовое</span> меню
-              </>
-            }
+            title={<Rich text={t('bar.title')} className="text-magenta" />}
           />
           <p className="lead" style={{ marginTop: '-1rem' }}>
-            Доставка прямо к твоему игровому месту через софт управления или chill в отдельной лаундж-зоне с мягкими
-            диванами и приставками.
+            {t('bar.lead')}
           </p>
           <motion.div
             className="menu"
@@ -44,18 +41,18 @@ export default function Bar() {
           >
             {MENU.map((m) => (
               <motion.div
-                key={m.title}
+                key={m.icon}
                 className="menu-item"
                 variants={{ hidden: { opacity: 0, x: -40 }, show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: EASE } } }}
               >
                 <div>
                   <Icon name={m.icon} />
                   <span>
-                    <b>{m.title}</b>
-                    <small>{m.note}</small>
+                    <b>{tr(m.title)}</b>
+                    <small>{tr(m.note)}</small>
                   </span>
                 </div>
-                <span className="cost">{m.price}</span>
+                <span className="cost">{m.from ? t('price.from', { price: money(m.price) }) : money(m.price)}</span>
               </motion.div>
             ))}
           </motion.div>

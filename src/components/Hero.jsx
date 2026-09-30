@@ -2,19 +2,19 @@ import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'fram
 import { useRef } from 'react'
 import { HERO_STATS } from '../data/content'
 import { scrollToId } from '../hooks/useSmoothScroll'
+import { Rich, useLang } from '../i18n'
 import AutoVideo from './AutoVideo'
 import Counter from './Counter'
 import Icon from './Icon'
 import { EASE } from './Reveal'
 
-const LINES = [
-  { text: 'Твой портал в' },
-  { text: 'киберспорт', accent: true },
-  { text: 'высшей лиги' },
-]
-
 export default function Hero({ ready }) {
+  const { t, tr } = useLang()
   const ref = useRef(null)
+  // Строки заголовка: каждая «выезжает» отдельно, *строка* — акцентная.
+  const lines = t('hero.title')
+    .split('\n')
+    .map((l) => ({ text: l.replace(/\*/g, ''), accent: l.startsWith('*') }))
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
 
   // Параллакс: видео уезжает медленнее, контент — быстрее и гаснет.
@@ -60,16 +60,17 @@ export default function Hero({ ready }) {
             animate={ready ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, ease: EASE }}
           >
-            <span className="dot cyan" /> Киберспортивный кластер 2025 • Москва
+            <span className="dot cyan" /> {t('hero.chip')}
           </motion.div>
 
           <motion.h1
+            key={t('hero.title')}
             className="h1"
             initial="hidden"
             animate={show}
             variants={{ show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } } }}
           >
-            {LINES.map((l) => (
+            {lines.map((l) => (
               <span className="line" key={l.text}>
                 <motion.span
                   className={l.accent ? 'accent' : ''}
@@ -90,9 +91,7 @@ export default function Hero({ ready }) {
             animate={ready ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.5, ease: EASE }}
           >
-            Топовые боевые станции на базе <strong>RTX 4090</strong> и <strong>Core i9-14900K</strong>, киберспортивные
-            матрицы 360Hz Fast-IPS, эргономика Herman Miller Embody и бескомпромиссная атмосфера LAN-турниров мирового
-            класса.
+            <Rich text={t('hero.lead')} tag="strong" />
           </motion.p>
 
           <motion.div
@@ -109,7 +108,7 @@ export default function Hero({ ready }) {
                 scrollToId('booking')
               }}
             >
-              <Icon name="sports_esports" /> Забронировать место
+              <Icon name="sports_esports" /> {t('hero.book')}
             </a>
             <a
               href="#zones"
@@ -119,7 +118,7 @@ export default function Hero({ ready }) {
                 scrollToId('zones')
               }}
             >
-              <Icon name="memory" /> Конфигурации ПК
+              <Icon name="memory" /> {t('hero.configs')}
             </a>
           </motion.div>
 
@@ -129,8 +128,8 @@ export default function Hero({ ready }) {
             animate={ready ? { opacity: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            {HERO_STATS.map((s) => (
-              <div key={s.label}>
+            {HERO_STATS.map((s, i) => (
+              <div key={i}>
                 <b>
                   {s.text ?? (
                     <>
@@ -139,7 +138,7 @@ export default function Hero({ ready }) {
                     </>
                   )}
                 </b>
-                <span className="tech">{s.label}</span>
+                <span className="tech">{tr(s.label)}</span>
               </div>
             ))}
           </motion.div>
@@ -157,7 +156,7 @@ export default function Hero({ ready }) {
           <motion.div className="hero-card" style={{ rotateX: rx, rotateY: ry }}>
             <motion.img
               src="/img/hero.jpg"
-              alt="Кибер-солдат в тактической броне — маскот арены"
+              alt={t('hero.imgAlt')}
               style={{ x: imgX, y: imgY }}
             />
             <motion.div
@@ -171,7 +170,7 @@ export default function Hero({ ready }) {
                 <span className="dot" />
                 <div>
                   <p className="title">ONLINE PROTOCOL ACTIVE</p>
-                  <p className="sub tech">NODE: MSK-ARENA-CORE // 360FPS LOCKED</p>
+                  <p className="sub tech">NODE: ALA-ARENA-CORE // 360FPS LOCKED</p>
                 </div>
               </div>
               <Icon name="verified" className="text-cyan" />

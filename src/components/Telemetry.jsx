@@ -1,6 +1,7 @@
 import { motion, useAnimationFrame, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from 'framer-motion'
 import { useRef } from 'react'
 import { TELEMETRY } from '../data/content'
+import { useLang } from '../i18n'
 import Icon from './Icon'
 
 const wrap = (min, max, v) => {
@@ -10,6 +11,7 @@ const wrap = (min, max, v) => {
 
 // Бесконечная лента: ускоряется и меняет направление вместе со скроллом.
 export default function Telemetry() {
+  const { t, tr } = useLang()
   const baseX = useMotionValue(0)
   const { scrollY } = useScroll()
   const velocity = useSpring(useVelocity(scrollY), { damping: 50, stiffness: 400 })
@@ -27,11 +29,11 @@ export default function Telemetry() {
 
   const group = (key) => (
     <div className="marquee-group tech" key={key} aria-hidden={key === 'b'}>
-      {TELEMETRY.map((t, i) => (
-        <span key={i} className={`marquee-item ${t.dot ? 'live' : ''}`}>
-          {t.dot ? <span className="dot" /> : <Icon name={t.icon} />}
-          {t.text && <span>{t.text}:</span>}
-          <strong>{t.strong}</strong>
+      {TELEMETRY.map((m, i) => (
+        <span key={i} className={`marquee-item ${m.dot ? 'live' : ''}`}>
+          {m.dot ? <span className="dot" /> : <Icon name={m.icon} />}
+          {m.text && <span>{tr(m.text)}:</span>}
+          <strong>{tr(m.strong)}</strong>
           <span className="marquee-sep">//</span>
         </span>
       ))}
@@ -39,7 +41,7 @@ export default function Telemetry() {
   )
 
   return (
-    <section className="telemetry" aria-label="Телеметрия клуба">
+    <section className="telemetry" aria-label={t('telemetry.aria')}>
       <motion.div className="marquee" style={{ x }}>
         {group('a')}
         {group('b')}

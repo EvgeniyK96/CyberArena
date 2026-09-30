@@ -2,15 +2,15 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { PACKAGES, SEAT_ZONES } from '../data/content'
 import { lockScroll } from '../hooks/useSmoothScroll'
+import { Rich, useLang } from '../i18n'
 import Counter from './Counter'
 import Icon from './Icon'
 import { EASE, SectionHead } from './Reveal'
 
 const pad = (n) => String(n).padStart(2, '0')
 const seatId = (zone, n) => `${zone.prefix}-${pad(n)}`
-const rub = (n) => `${Math.round(n).toLocaleString('ru-RU')} ₽`
 
-const FILTERS = [{ id: 'all', label: 'Все зоны' }, ...SEAT_ZONES.map((z) => ({ id: z.id, label: z.title.split(' ')[0] }))]
+const FILTERS = [{ id: 'all' }, ...SEAT_ZONES.map((z) => ({ id: z.id, label: z.title.split(' ')[0] }))]
 
 const totalFree = SEAT_ZONES.reduce((a, z) => a + (z.to - z.from + 1 - z.busy.length), 0)
 const totalBusy = SEAT_ZONES.reduce((a, z) => a + z.busy.length, 0)
@@ -19,7 +19,7 @@ function priceFor(zone, pkg) {
   return pkg.night ? zone.night : zone.price * pkg.mult
 }
 
-// +7 (999) 450-88-21
+// +7 (701) 450-88-21 — казахстанские номера тоже начинаются с +7
 function formatPhone(raw) {
   let d = raw.replace(/\D/g, '')
   // вставили «8999…» или «+7 999…» поверх префикса «+7»
@@ -38,6 +38,7 @@ function formatPhone(raw) {
 }
 
 export default function Booking({ pickedZone }) {
+  const { t, tr, money } = useLang()
   const [filter, setFilter] = useState('all')
   const [seat, setSeat] = useState({ zone: 'standard', num: 17 })
   const [pkgId, setPkgId] = useState('3h')
@@ -45,7 +46,7 @@ export default function Booking({ pickedZone }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [touched, setTouched] = useState(false)
-  const [done, setDone] = useState(null)
+  const [done, setDone] = useState(false)
 
   // Клик «Бронь» в карточке зоны → фильтруем карту и выбираем первое свободное место.
   useEffect(() => {
@@ -70,25 +71,26 @@ export default function Booking({ pickedZone }) {
 
   const summary = useMemo(
     () => [
-      ['Место', `${seatId(zone, seat.num)} • ${zone.title}`],
-      ['Тариф', `${pkg.title}${pkg.night ? ' (22:00 — 08:00)' : ''}`],
-      ['Игрок', name || 'Гость'],
-      ['Телефон', phone],
-      ['Итого', rub(total)],
+      [t('booking.sumSeat'), `${seatId(zone, seat.num)} • ${zone.title}`],
+      [t('booking.sumPackage'), `${tr(pkg.title)}${pkg.night ? ' (22:00 — 08:00)' : ''}`],
+      [t('booking.sumPlayer'), name || t('booking.guest')],
+      [t('booking.sumPhone'), phone],
+      [t('booking.sumTotal'), money(total)],
     ],
-    [zone, seat, pkg, name, phone, total],
+    // t/tr/money меняются вместе с языком
+    [zone, seat, pkg, name, phone, total, t, tr, money],
   )
 
   const submit = () => {
     setTouched(true)
     if (!phoneOk) return
     // TODO(backend): POST /api/bookings { seat, package, name, phone, student }
-    setDone(summary)
+    setDone(true)
     lockScroll(true)
   }
 
   const close = () => {
-    setDone(null)
+    setDone(false)
     lockScroll(false)
   }
 
@@ -98,25 +100,21 @@ export default function Booking({ pickedZone }) {
         <SectionHead
           eyebrow={
             <>
-              <span className="dot" /> Live radar система
+              <span className="dot" /> {t('booking.eyebrow')}
             </>
           }
           eyebrowClass="lime"
-          title={
-            <>
-              Интерактивная карта зала <span className="text-cyan">&</span> бронь
-            </>
-          }
+          title={<Rich text={t('booking.title')} className="text-cyan" />}
           aside={
             <div className="booking-head-badges">
               <span className="badge lime">
-                <span className="dot" /> Свободно ({totalFree})
+                <span className="dot" /> {t('booking.free', { n: totalFree })}
               </span>
               <span className="badge red">
-                <span className="dot red" /> В бою ({totalBusy})
+                <span className="dot red" /> {t('booking.busy', { n: totalBusy })}
               </span>
               <span className="badge">
-                <span className="dot cyan" /> Ваш выбор
+                <span className="dot cyan" /> {t('booking.yours')}
               </span>
             </div>
           }
@@ -132,14 +130,14 @@ export default function Booking({ pickedZone }) {
           >
             <div className="map-top tech">
               <span className="text-cyan">
-                <Icon name="domain" /> План помещения (1-й уровень, 450 м²)
+                <Icon name="domain" /> {t('booking.plan')}
               </span>
               <span className="text-lime">
                 <Icon name="sync" /> Online sync
               </span>
             </div>
 
-            <div className="zone-filter" role="tablist" aria-label="Фильтр зон">
+            <div className="zone-filter" role="tablist" aria-label={t('booking.filterAria')}>
               {FILTERS.map((f) => (
                 <button
                   key={f.id}
@@ -149,7 +147,7 @@ export default function Booking({ pickedZone }) {
                   onClick={() => setFilter(f.id)}
                 >
                   {filter === f.id && <motion.span layoutId="zone-pill" className="pill" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
-                  {f.label}
+                  {f.label ?? t('booking.filterAll')}
                 </button>
               ))}
             </div>
@@ -183,7 +181,7 @@ export default function Booking({ pickedZone }) {
                         className={`seat ${selected ? 'selected' : ''}`}
                         disabled={busy}
                         aria-pressed={selected}
-                        aria-label={`${seatId(z, n)} — ${busy ? 'занято' : 'свободно'}`}
+                        aria-label={`${seatId(z, n)} — ${t(busy ? 'booking.seatBusy' : 'booking.seatFree')}`}
                         onClick={() => {
                           setSeat({ zone: z.id, num: n })
                           if (filter !== 'all' && filter !== z.id) setFilter(z.id)
@@ -191,7 +189,7 @@ export default function Booking({ pickedZone }) {
                         variants={{ hidden: { opacity: 0, scale: 0.6 }, show: { opacity: 1, scale: 1 } }}
                         whileTap={busy ? undefined : { scale: 0.9 }}
                       >
-                        {selected && <span className="tag">ВЫБРАН</span>}
+                        {selected && <span className="tag">{t('booking.selected')}</span>}
                         {seatId(z, n)}
                         <i />
                       </motion.button>
@@ -208,10 +206,10 @@ export default function Booking({ pickedZone }) {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
-            aria-label="Бронирование"
+            aria-label={t('booking.aria')}
           >
             <div className="stepper tech">
-              {['1. Место', '2. Тариф', '3. Контакты'].map((s, i) => (
+              {[t('booking.step1'), t('booking.step2'), t('booking.step3')].map((s, i) => (
                 <div key={s} className={`step ${step > i ? 'done' : ''}`}>
                   <div className="bar">
                     <motion.span initial={false} animate={{ scaleX: step > i ? 1 : 0 }} transition={{ duration: 0.5, ease: EASE }} />
@@ -254,8 +252,8 @@ export default function Booking({ pickedZone }) {
 
             <div>
               <div className="field-label tech">
-                <span>Выберите тарифный пакет</span>
-                <span className="text-magenta">Предоплата не нужна</span>
+                <span>{t('booking.pickPackage')}</span>
+                <span className="text-magenta">{t('booking.noPrepay')}</span>
               </div>
               <div className="packages">
                 {PACKAGES.map((p) => (
@@ -267,10 +265,10 @@ export default function Booking({ pickedZone }) {
                     whileTap={{ scale: 0.96 }}
                     aria-pressed={pkgId === p.id}
                   >
-                    {p.hit && <span className="badge solid-magenta hit">Хит</span>}
-                    <b>{p.title}</b>
-                    <small>{p.note}</small>
-                    <span className="pkg-price">{rub(priceFor(zone, p))}</span>
+                    {p.hit && <span className="badge solid-magenta hit">{t('booking.hit')}</span>}
+                    <b>{tr(p.title)}</b>
+                    <small>{tr(p.note)}</small>
+                    <span className="pkg-price">{money(priceFor(zone, p))}</span>
                   </motion.button>
                 ))}
               </div>
@@ -280,21 +278,21 @@ export default function Booking({ pickedZone }) {
               <span>
                 <Icon name="school" />
                 <span>
-                  <b>Скидка студента</b>
-                  <small>−20% по студенческому / ISIC</small>
+                  <b>{t('booking.student')}</b>
+                  <small>{t('booking.studentNote')}</small>
                 </span>
               </span>
-              <button type="button" role="switch" aria-checked={student} aria-label="Скидка студента" className="switch" onClick={() => setStudent(!student)}>
+              <button type="button" role="switch" aria-checked={student} aria-label={t('booking.student')} className="switch" onClick={() => setStudent(!student)}>
                 <motion.span className="knob" layout transition={{ type: 'spring', stiffness: 600, damping: 30 }} style={{ left: student ? 25 : 3 }} />
               </button>
             </div>
 
             <div className="inputs">
               <div className="field-label tech" style={{ marginBottom: 0 }}>
-                <span>Данные игрока (для SMS-брони)</span>
+                <span>{t('booking.playerData')}</span>
                 <span className="text-cyan">Auth required</span>
               </div>
-              <input className="input" placeholder="Никнейм или имя" value={name} onChange={(e) => setName(e.target.value)} autoComplete="nickname" />
+              <input className="input" placeholder={t('booking.namePh')} value={name} onChange={(e) => setName(e.target.value)} autoComplete="nickname" />
               <input
                 className={`input ${touched && !phoneOk ? 'invalid' : ''}`}
                 placeholder="+7 (___) ___-__-__"
@@ -305,32 +303,32 @@ export default function Booking({ pickedZone }) {
                 onFocus={() => !phone && setPhone('+7')}
                 onChange={(e) => setPhone(e.target.value.length < 3 ? e.target.value : formatPhone(e.target.value))}
               />
-              {touched && !phoneOk && <small style={{ color: '#fca5a5' }}>Введите номер телефона полностью — на него придёт код доступа.</small>}
+              {touched && !phoneOk && <small style={{ color: '#fca5a5' }}>{t('booking.phoneErr')}</small>}
             </div>
 
             <div className="total">
               <div>
-                <span className="tech muted">Итого к оплате</span>
+                <span className="tech muted">{t('booking.total')}</span>
                 <AnimatePresence>
                   {student && (
                     <motion.div className="old" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                      {rub(base)}
+                      {money(base)}
                     </motion.div>
                   )}
                 </AnimatePresence>
-                <span className="tech text-lime">Без комиссии арены</span>
+                <span className="tech text-lime">{t('booking.noFee')}</span>
               </div>
               <div className="total-sum">
-                <Counter value={total} duration={0.8} /> ₽
+                <Counter value={total} duration={0.8} /> ₸
               </div>
             </div>
 
             <button type="button" className="btn btn-primary btn-block" onClick={submit} style={{ minHeight: 56 }}>
-              <Icon name="bolt" fill /> Подтвердить бронирование
+              <Icon name="bolt" fill /> {t('booking.submit')}
             </button>
             <div className="checkout-note">
               <span>
-                <Icon name="lock" /> Бронь держится 15 минут
+                <Icon name="lock" /> {t('booking.hold')}
               </span>
               <span>
                 <Icon name="verified_user" /> Nexus Safe Shield
@@ -347,23 +345,23 @@ export default function Booking({ pickedZone }) {
               className="modal"
               role="dialog"
               aria-modal="true"
-              aria-label="Бронь оформлена"
+              aria-label={t('booking.doneAria')}
               initial={{ scale: 0.85, y: 30, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 24 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <button className="modal-close" onClick={close} aria-label="Закрыть">
+              <button className="modal-close" onClick={close} aria-label={t('booking.close')}>
                 <Icon name="close" />
               </button>
               <motion.div className="big-ic" initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.15, type: 'spring' }}>
                 <Icon name="check" />
               </motion.div>
-              <h3>Место закреплено!</h3>
-              <p>SMS с кодом от замка придёт на указанный номер. Бронь удерживается 15 минут.</p>
+              <h3>{t('booking.doneTitle')}</h3>
+              <p>{t('booking.doneText')}</p>
               <div className="modal-summary">
-                {done.map(([k, v]) => (
+                {summary.map(([k, v]) => (
                   <div key={k}>
                     <span>{k}</span>
                     <b>{v}</b>
@@ -371,7 +369,7 @@ export default function Booking({ pickedZone }) {
                 ))}
               </div>
               <button className="btn btn-primary btn-block" onClick={close}>
-                Отлично, GG!
+                {t('booking.gg')}
               </button>
             </motion.div>
           </motion.div>

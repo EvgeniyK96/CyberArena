@@ -1,9 +1,11 @@
 import { motion, useMotionTemplate, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { AEGIS_FEATURES } from '../data/content'
+import { Rich, useLang } from '../i18n'
 import AutoVideo from './AutoVideo'
 
 function Stat({ f, i, progress }) {
+  const { tr } = useLang()
   const start = 0.45 + i * 0.08
   const opacity = useTransform(progress, [start, start + 0.08], [0, 1])
   const y = useTransform(progress, [start, start + 0.08], [40, 0])
@@ -13,7 +15,7 @@ function Stat({ f, i, progress }) {
         {f.k}
         {f.u && <small>{f.u}</small>}
       </b>
-      <p>{f.label}</p>
+      <p>{tr(f.label)}</p>
     </motion.div>
   )
 }
@@ -21,6 +23,7 @@ function Stat({ f, i, progress }) {
 // Секция закреплена на экране, пока пользователь прокручивает ~3 экрана:
 // видео раскрывается из «окна» на весь экран, затем появляются характеристики.
 export default function AegisShowcase() {
+  const { t } = useLang()
   const ref = useRef(null)
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ['start start', 'end end'] })
 
@@ -42,7 +45,7 @@ export default function AegisShowcase() {
   const syncPct = useTransform(p, (v) => `${Math.min(100, Math.round((v / 0.9) * 100))}%`)
 
   return (
-    <section className="aegis" id="aegis" ref={ref} aria-label="Aegis — железо и сеть">
+    <section className="aegis" id="aegis" ref={ref} aria-label={t('aegis.aria')}>
       <div className="aegis-sticky">
         <motion.div className="aegis-media" style={{ clipPath, scale: mediaScale }}>
           <AutoVideo src="/media/aegis.mp4" poster="/media/aegis-poster.jpg" threshold={0} />
@@ -58,20 +61,16 @@ export default function AegisShowcase() {
         </motion.div>
 
         <motion.div className="aegis-intro" style={{ opacity: introOpacity, scale: introScale, y: introY }}>
-          <span className="eyebrow lime">// Железо класса Aegis</span>
+          <span className="eyebrow lime">{t('aegis.eyebrow')}</span>
           <h2 className="h1" style={{ marginTop: '1rem' }}>
-            Мощь, которая
-            <br />
-            <span className="text-lime" style={{ textShadow: '0 0 30px rgba(163,230,53,.5)' }}>
-              не знает лагов
-            </span>
+            <Rich text={t('aegis.title')} className="text-lime" style={{ textShadow: '0 0 30px rgba(163,230,53,.5)' }} />
           </h2>
         </motion.div>
 
         <div className="aegis-steps">
           <div className="container">
             {AEGIS_FEATURES.map((f, i) => (
-              <Stat key={f.label} f={f} i={i} progress={p} />
+              <Stat key={f.k} f={f} i={i} progress={p} />
             ))}
           </div>
         </div>

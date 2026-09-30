@@ -297,7 +297,7 @@ input { font: inherit; color: inherit; }
 .brand:hover img { transform: rotate(-6deg) scale(1.06); }
 .brand-name { display: grid; line-height: 1; }
 .brand-name b { font-family: var(--f-head); font-size: 20px; font-weight: 800; letter-spacing: 0.04em; color: var(--cyan); text-shadow: 0 0 14px rgba(0, 240, 255, 0.5); }
-.brand-name small { font-family: var(--f-tech); font-size: 9.5px; letter-spacing: 0.3em; color: var(--text-2); margin-top: 4px; }
+.brand-name small { font-family: var(--f-tech); font-size: 9.5px; letter-spacing: 0.3em; color: var(--text-2); margin-top: 4px; white-space: nowrap; }
 .nav { display: flex; align-items: center; gap: 0.25rem; }
 .nav a {
   position: relative;
@@ -326,6 +326,11 @@ input { font: inherit; color: inherit; }
 }
 .icon-btn:hover { box-shadow: var(--glow-cyan); }
 .burger { display: none; }
+.lang-switch { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line-cyan); background: rgba(19, 23, 34, 0.7); border-radius: 4px; }
+.lang-switch button { position: relative; isolation: isolate; min-width: 42px; height: 36px; padding: 0 0.5rem; font-family: var(--f-tech); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-2); border-radius: 2px; transition: color 0.2s; }
+.lang-switch button:hover { color: var(--cyan); }
+.lang-switch button.on { color: var(--void); }
+.lang-switch .pill { position: absolute; inset: 0; z-index: -1; background: var(--cyan); border-radius: 2px; box-shadow: 0 0 12px rgba(0, 240, 255, 0.45); }
 
 .mobile-menu {
   position: fixed;
@@ -874,6 +879,9 @@ input { font: inherit; color: inherit; }
   .tabbar .pro { position: absolute; top: -18px; left: 56%; padding: 0 4px; font-size: 8px; font-family: var(--f-tech); background: var(--magenta); color: #fff; border-radius: 2px; }
 }
 @media (max-width: 420px) {
+  .nav-actions { gap: 0.5rem; }
+  .nav-actions .account { display: none; }
+  .lang-switch button { min-width: 38px; padding: 0 0.4rem; }
   .packages { grid-template-columns: 1fr 1fr; }
   .pkg { padding: 0.65rem; }
   .aegis-steps .container { grid-template-columns: 1fr 1fr; }

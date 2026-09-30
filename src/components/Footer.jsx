@@ -1,5 +1,6 @@
 import { CONTACTS, NAV } from '../data/content'
 import { scrollToId } from '../hooks/useSmoothScroll'
+import { useLang } from '../i18n'
 import Icon from './Icon'
 import { Reveal } from './Reveal'
 
@@ -31,6 +32,7 @@ function MiniMap() {
 }
 
 export default function Footer() {
+  const { t, tr } = useLang()
   const go = (id) => (e) => {
     e.preventDefault()
     scrollToId(id)
@@ -47,25 +49,25 @@ export default function Footer() {
                 <small>CYBER ARENA</small>
               </span>
             </a>
-            <p>Флагманский киберспортивный комплекс нового поколения. Топовые сетапы 360Hz, кастомные аккаунты, приватные VIP-ложи и лаундж-бар 24/7.</p>
+            <p>{t('footer.about')}</p>
             <p className="tech text-lime" style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-              <span className="dot" /> Круглосуточно • 24/7 non-stop
+              <span className="dot" /> {t('footer.hours')}
             </p>
           </Reveal>
 
           <Reveal delay={0.08}>
-            <h4>Навигация</h4>
+            <h4>{t('footer.nav')}</h4>
             <nav>
               {NAV.filter((n) => n.id !== 'contacts').map((n) => (
                 <a key={n.id} href={`#${n.id}`} onClick={go(n.id)}>
-                  {n.label}
+                  {tr(n.label)}
                 </a>
               ))}
             </nav>
           </Reveal>
 
           <Reveal delay={0.16}>
-            <h4>Связь & соцсети</h4>
+            <h4>{t('footer.contacts')}</h4>
             <a className="contact" href={`tel:${CONTACTS.phone.replace(/[^\d+]/g, '')}`}>
               <Icon name="call" /> {CONTACTS.phone}
             </a>
@@ -73,7 +75,7 @@ export default function Footer() {
               <Icon name="mail" /> {CONTACTS.email}
             </a>
             <span className="contact">
-              <Icon name="location_on" /> {CONTACTS.address}
+              <Icon name="location_on" /> {tr(CONTACTS.address)}
             </span>
             <div className="socials">
               {CONTACTS.socials.map((s) => (
@@ -85,7 +87,7 @@ export default function Footer() {
           </Reveal>
 
           <Reveal delay={0.24}>
-            <h4>Интерактивная локация</h4>
+            <h4>{t('footer.location')}</h4>
             <div className="map-card">
               <MiniMap />
               <span className="map-ping" />
@@ -93,27 +95,27 @@ export default function Footer() {
                 <Icon name="location_on" fill />
               </span>
               <div className="map-caption">
-                <span>{CONTACTS.metro}</span>
-                <span className="text-lime">Парковка 24/7</span>
+                <span>{tr(CONTACTS.metro)}</span>
+                <span className="text-lime">{t('footer.parking')}</span>
               </div>
             </div>
             <p className="tech muted" style={{ marginTop: '1rem' }}>
-              Принимаем к оплате: <span className="text-cyan">{CONTACTS.payments}</span>
+              {t('footer.pay')} <span className="text-cyan">{CONTACTS.payments}</span>
             </p>
           </Reveal>
         </div>
 
         <div className="footer-bottom tech">
-          <span>© 2025 NEXUS CYBER ARENA. Все права защищены. 16+</span>
+          <span>{t('footer.rights')}</span>
           <nav>
             <a href="#contacts" onClick={(e) => e.preventDefault()}>
-              Правила клуба
+              {t('footer.rules')}
             </a>
             <a href="#contacts" onClick={(e) => e.preventDefault()}>
-              Публичная оферта
+              {t('footer.offer')}
             </a>
             <a href="#contacts" onClick={(e) => e.preventDefault()}>
-              Конфиденциальность
+              {t('footer.privacy')}
             </a>
           </nav>
         </div>

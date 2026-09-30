@@ -2,11 +2,13 @@ import { AnimatePresence, motion, useMotionValue, useSpring } from 'framer-motio
 import { useState } from 'react'
 import { COMPARISON, ZONES } from '../data/content'
 import { scrollToId } from '../hooks/useSmoothScroll'
+import { Rich, useLang } from '../i18n'
 import AutoVideo from './AutoVideo'
 import Icon from './Icon'
 import { EASE, SectionHead } from './Reveal'
 
 function ZoneCard({ zone, index, onPick }) {
+  const { t, tr, money } = useLang()
   const rx = useSpring(useMotionValue(0), { stiffness: 160, damping: 18 })
   const ry = useSpring(useMotionValue(0), { stiffness: 160, damping: 18 })
   const fine = typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches
@@ -47,7 +49,7 @@ function ZoneCard({ zone, index, onPick }) {
           <img src={zone.image} alt="" loading="lazy" />
         )}
         <span className={`badge ${zone.accent === 'cyan' ? 'solid-lime' : zone.accent === 'lime' ? 'lime' : 'solid-magenta'}`}>
-          {zone.badge}
+          {tr(zone.badge)}
         </span>
         {zone.video && (
           <span className="zone-live tech">
@@ -64,19 +66,20 @@ function ZoneCard({ zone, index, onPick }) {
           {zone.specs.map(([k, v]) => (
             <div className="spec-row" key={k}>
               <span>{k}:</span>
-              <span>{v}</span>
+              <span>{tr(v)}</span>
             </div>
           ))}
         </div>
         <div className="zone-foot">
           <div className="price">
-            <small>ТАРИФ</small>
+            <small>{t('zones.tariff')}</small>
             <b>
-              от {zone.price} ₽<span>/час</span>
+              {t('price.from', { price: money(zone.price) })}
+              <span>{t('zones.perHour')}</span>
             </b>
           </div>
           <button className={zone.id === 'vip' ? 'btn btn-vip btn-sm' : 'btn btn-ghost btn-sm'} onClick={() => onPick(zone.id)}>
-            {zone.cta}
+            {tr(zone.cta)}
           </button>
         </div>
       </div>
@@ -86,6 +89,7 @@ function ZoneCard({ zone, index, onPick }) {
 }
 
 export default function Zones({ onPickZone }) {
+  const { t, tr } = useLang()
   const [open, setOpen] = useState(false)
 
   const pick = (id) => {
@@ -97,13 +101,9 @@ export default function Zones({ onPickZone }) {
     <section className="section" id="zones">
       <div className="container">
         <SectionHead
-          eyebrow="// Селекция боевых зон"
-          title={
-            <>
-              Зоны клуба и <span className="text-cyan">аппаратные</span> классы
-            </>
-          }
-          lead="Каждая комната спроектирована под свои задачи: от индивидуального соло-ранкеда до закрытых сквад-буткемпов и стриминга."
+          eyebrow={t('zones.eyebrow')}
+          title={<Rich text={t('zones.title')} className="text-cyan" />}
+          lead={t('zones.lead')}
         />
 
         <div className="zones-grid">
@@ -123,7 +123,7 @@ export default function Zones({ onPickZone }) {
             <span>
               <Icon name="tune" />
               <span className="h3" style={{ fontSize: '1rem' }}>
-                Сравнение оборудования и девайсов
+                {t('zones.compare')}
               </span>
             </span>
             <Icon name="expand_more" className="chev" />
@@ -141,7 +141,7 @@ export default function Zones({ onPickZone }) {
                   <table>
                     <thead>
                       <tr>
-                        <th>Параметр</th>
+                        <th>{t('zones.param')}</th>
                         {COMPARISON.cols.map((c) => (
                           <th key={c}>{c}</th>
                         ))}
@@ -150,13 +150,13 @@ export default function Zones({ onPickZone }) {
                     <tbody>
                       {COMPARISON.rows.map((r, i) => (
                         <motion.tr
-                          key={r[0]}
+                          key={i}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.1 + i * 0.04 }}
                         >
                           {r.map((c, j) => (
-                            <td key={j}>{c}</td>
+                            <td key={j}>{tr(c)}</td>
                           ))}
                         </motion.tr>
                       ))}

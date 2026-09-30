@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { GAMES } from '../data/content'
+import { Rich, useLang } from '../i18n'
 import Icon from './Icon'
 import { SectionHead } from './Reveal'
 
@@ -10,18 +11,15 @@ const spotlight = (e) => {
 }
 
 export default function Games() {
+  const { t } = useLang()
   return (
     <section className="section" id="games">
       <div className="container">
         <SectionHead
-          eyebrow="// Предустановленный софт и игры"
+          eyebrow={t('games.eyebrow')}
           eyebrowClass="magenta"
-          title={
-            <>
-              Библиотека игр <span className="text-magenta">без задержек</span>
-            </>
-          }
-          lead="Все клиенты обновляются автоматически через локальный NVMe кэш-сервер на 10 Гбит/с. Заходи и играй на своих или клубных Prime-аккаунтах."
+          title={<Rich text={t('games.title')} className="text-magenta" />}
+          lead={t('games.lead')}
         />
         <motion.div
           className="games-grid"
