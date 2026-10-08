@@ -46,7 +46,7 @@ export function LangProvider({ children }) {
       return s
     }
     // ru-RU для обоих языков: kk-KZ в браузерах даёт «2,900», а в Казахстане пишут «2 900»
-    const money = (n) => `${Math.round(n).toLocaleString('ru-RU')} ₸`
+    const money = (n) => `${Math.round(n).toLocaleString('ru-RU')}\u00a0₸` // неразрывный пробел перед ₸
     return { lang, setLang, tr, t, money }
   }, [lang, setLang])
 

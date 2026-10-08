@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { HERO_STATS } from '../data/content'
 import { scrollToId } from '../hooks/useSmoothScroll'
@@ -22,32 +22,13 @@ export default function Hero({ ready }) {
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.15])
   const copyY = useTransform(scrollYProgress, [0, 1], [0, -120])
   const copyOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
-  const visualY = useTransform(scrollYProgress, [0, 1], [0, -60])
-
-  // 3D-наклон карточки героя за курсором.
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [8, -8]), { stiffness: 150, damping: 18 })
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), { stiffness: 150, damping: 18 })
-  const imgX = useSpring(useTransform(mx, [-0.5, 0.5], [14, -14]), { stiffness: 120, damping: 20 })
-  const imgY = useSpring(useTransform(my, [-0.5, 0.5], [10, -10]), { stiffness: 120, damping: 20 })
-
-  const onMove = (e) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    mx.set((e.clientX - r.left) / r.width - 0.5)
-    my.set((e.clientY - r.top) / r.height - 0.5)
-  }
-  const onLeave = () => {
-    mx.set(0)
-    my.set(0)
-  }
 
   const show = ready ? 'show' : 'hidden'
 
   return (
     <section className="hero" id="top" ref={ref}>
       <motion.div className="hero-video" style={{ y: videoY, scale: videoScale }}>
-        <AutoVideo src="/media/club-bg.mp4" poster="/media/club-bg-poster.jpg" threshold={0} />
+        <AutoVideo src="/media/background.mp4" poster="/media/background-poster.jpg" threshold={0} />
       </motion.div>
       <div className="hero-shade" />
       <div className="hero-scanlines" />
@@ -141,61 +122,6 @@ export default function Hero({ ready }) {
                 <span className="tech">{tr(s.label)}</span>
               </div>
             ))}
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="hero-visual"
-          style={{ y: visualY }}
-          initial={{ opacity: 0, scale: 0.9, rotateY: -20 }}
-          animate={ready ? { opacity: 1, scale: 1, rotateY: 0 } : {}}
-          transition={{ duration: 1.1, delay: 0.3, ease: EASE }}
-          onMouseMove={onMove}
-          onMouseLeave={onLeave}
-        >
-          <motion.div className="hero-card" style={{ rotateX: rx, rotateY: ry }}>
-            <motion.img
-              src="/img/hero.jpg"
-              alt={t('hero.imgAlt')}
-              style={{ x: imgX, y: imgY }}
-            />
-            <motion.div
-              className="hero-scan"
-              initial={{ top: '-30%' }}
-              animate={{ top: '100%' }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: 'linear', repeatDelay: 1.5 }}
-            />
-            <div className="hero-hud">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="dot" />
-                <div>
-                  <p className="title">ONLINE PROTOCOL ACTIVE</p>
-                  <p className="sub tech">NODE: ALA-ARENA-CORE // 360FPS LOCKED</p>
-                </div>
-              </div>
-              <Icon name="verified" className="text-cyan" />
-            </div>
-          </motion.div>
-          <div className="hero-frame">
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-
-          <motion.div
-            className="float-chip one badge lime"
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <Icon name="memory" /> RTX 4090 24GB
-          </motion.div>
-          <motion.div
-            className="float-chip two badge magenta"
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-          >
-            <Icon name="monitor" /> 540Hz OLED
           </motion.div>
         </motion.div>
       </div>

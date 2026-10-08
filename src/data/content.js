@@ -74,7 +74,8 @@ export const ZONES = [
     klass: 'Class: Apex Cybernetic',
     badge: { ru: 'Приватные ложи + PS5 Pro', kk: 'Жеке ложалар + PS5 Pro' },
     accent: 'magenta',
-    image: '/img/hero.jpg',
+    video: '/media/hero.mp4',
+    poster: '/media/hero-poster.jpg',
     price: 2700,
     cta: { ru: 'Бронь VIP', kk: 'VIP бронь' },
     specs: [

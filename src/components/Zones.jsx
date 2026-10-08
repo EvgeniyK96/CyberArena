@@ -7,6 +7,13 @@ import AutoVideo from './AutoVideo'
 import Icon from './Icon'
 import { EASE, SectionHead } from './Reveal'
 
+// Появление карточек запускает вся лента, а не каждая карточка: на мобильном
+// карточки 2 и 3 стоят за краем горизонтального скролла и иначе остались бы невидимыми.
+const cardIn = {
+  hidden: { opacity: 0, y: 80, rotateX: 18 },
+  show: (i) => ({ opacity: 1, y: 0, rotateX: 0, transition: { duration: 0.9, delay: i * 0.12, ease: EASE } }),
+}
+
 function ZoneCard({ zone, index, onPick }) {
   const { t, tr, money } = useLang()
   const rx = useSpring(useMotionValue(0), { stiffness: 160, damping: 18 })
@@ -26,13 +33,7 @@ function ZoneCard({ zone, index, onPick }) {
   }
 
   return (
-    <motion.div
-      className="zone-wrap"
-      initial={{ opacity: 0, y: 80, rotateX: 18 }}
-      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.9, delay: index * 0.12, ease: EASE }}
-    >
+    <motion.div className="zone-wrap" variants={cardIn} custom={index}>
     <motion.article
       className={`zone-card ${zone.accent}`}
       style={{ rotateX: rx, rotateY: ry }}
@@ -106,11 +107,11 @@ export default function Zones({ onPickZone }) {
           lead={t('zones.lead')}
         />
 
-        <div className="zones-grid">
+        <motion.div className="zones-grid" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
           {ZONES.map((z, i) => (
             <ZoneCard key={z.id} zone={z} index={i} onPick={pick} />
           ))}
-        </div>
+        </motion.div>
 
         <motion.div
           className="compare glass"
